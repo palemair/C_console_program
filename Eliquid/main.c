@@ -1,5 +1,6 @@
 #define _GNU_SOURCE
 #include <stdlib.h>
+#include <stdbool.h>
 #include <unistd.h>
 #include <string.h>
 #include <ctype.h>
@@ -43,10 +44,12 @@ float calc_prix (struct quantite *q, struct prix *p)      // calculateur
   return total;
 }
 
+static const char erreur[] = "Mauvaise saisie , essayez à nouveau !!";
+
 static const char* texte[] = {
     "CALCULATEUR DE E-LIQUIDE",
-    "Entrez la dose de nicotine souhaitée en mg/ml : ",
-    "Entrez la quantité de totale de eliquide souhaitée en ml : ",
+    "Entrez la dose de nicotine souhaitée en mg/ml (2 <-< 18)",
+    "Entrez le total de eliquide souhaitée en ml (100 <-<3000)",
     "Rappel des prix des éléments",
     "Tarif de la base",
     "Tarif de la nicotine",
@@ -57,6 +60,10 @@ static const char* texte[] = {
     "Nicotine",
     "Arome"
 };
+#define NICOMIN 2
+#define NICOMAX 18
+#define TOTALMIN 100
+#define TOTALMAX 3000
 
 int main (int argc, char **argv)
 {
@@ -65,8 +72,8 @@ int main (int argc, char **argv)
                          "\toption -n pour la quantite de nicotine en mg/L\n"
                          "\toption -t pour la quantite totale\n\n";
 
-    static int Nbnico = 0;
-    static int etotal = 0;
+    static int Nbnico = -1;
+    static int etotal = -1;
     int c;
 
     opterr = 0;
@@ -76,9 +83,19 @@ int main (int argc, char **argv)
         {
         case 'n':
             Nbnico = strtol (optarg, NULL, 10);
+            if((Nbnico < NICOMIN) || (Nbnico > NICOMAX))
+            {
+                fprintf (stderr, "%s\n", erreur);
+                abort();
+            }
             break;
         case 't':
             etotal = strtol (optarg, NULL, 10);
+            if((etotal < TOTALMIN) || (etotal > TOTALMAX))
+            {
+                fprintf (stderr, "%s\n", erreur);
+                abort();
+            }
             break;
         case 'h':
             fprintf (stderr, "%s", help);
@@ -102,17 +119,40 @@ int main (int argc, char **argv)
 
   char string[MAX]= "\0";
   
-  if(Nbnico == 0 && etotal == 0) 
-  {
-      printf ("\t%s", texte[1]);
-      fgets(string,MAX-1,stdin);
-      sscanf(string,"%d",&Nbnico);
-      
-      memset(string,0,sizeof(string));
+  bool value_ok = false;
 
-      printf ("\t%s", texte[2]);
-      fgets(string,MAX-1,stdin);
-      etotal = strtol (string, NULL, 10);
+  if(Nbnico == -1)
+  {
+      do
+      {
+          memset(string,0,sizeof(string));
+          printf ("---> %-60s : ", texte[1]);
+          fgets(string,MAX-1,stdin);
+          sscanf(string,"%d",&Nbnico);
+          if((Nbnico < NICOMIN) || (Nbnico > NICOMAX))
+              fprintf (stderr,"---> \033[1;37m%s\033[0m\n", erreur);
+          else
+              value_ok = true;
+      }
+      while(!value_ok);
+  }
+  
+  
+  value_ok = false;
+  if(etotal == -1)
+  {
+      do
+      {
+          memset(string,0,sizeof(string));
+          printf ("---> %-60s : ", texte[2]);
+          fgets(string,MAX-1,stdin);
+          sscanf(string,"%d",&etotal);
+          if((etotal < TOTALMIN) || (etotal > TOTALMAX))
+              fprintf (stderr,"---> \033[1;37m%s\033[0m\n", erreur);
+          else
+              value_ok = true;
+      }
+      while(!value_ok);
   }
 
   dem->nicotine = Nbnico;
