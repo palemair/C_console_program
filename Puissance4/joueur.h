@@ -17,14 +17,8 @@ struct joueur_s {
     struct joueur_s * suivant;
 };
 
-typedef struct cellule {
-    unsigned int x;
-    unsigned int y;
-} cell;
-
+/* test validit d'une cellule */
 bool test_cell(unsigned int x, unsigned int y, char tab[7][8], struct joueur_s *j);
-
-typedef enum {VICTOIRE, PLUSDEJETON, QUITTER, ENCOURS} FINPARTIE;
 
 /* fonction de jouer */
 unsigned int jouer(char tab[7][8], struct joueur_s * joueur);
@@ -33,8 +27,6 @@ unsigned int jouer(char tab[7][8], struct joueur_s * joueur);
 int getnumcol(struct joueur_s * joueur);
 
 /* Controler l'état du jeu */
-
-FINPARTIE checkjeu(char tab[7][8], struct joueur_s* joueur);
 bool check_victory(char tab[7][8], struct joueur_s* joueur);
 
 #endif

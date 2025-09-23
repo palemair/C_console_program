@@ -1,8 +1,10 @@
 #include "print.h"
 #include "joueur.h"
 
+
 int main (void) 
 {
+    typedef enum {VICTOIRE, PLUSDEJETON, QUITTER, ENCOURS} FINPARTIE;
     static char tab[7][8];
     
     initialize_tab(tab,' ');
@@ -17,8 +19,7 @@ int main (void)
     FINPARTIE jeu = ENCOURS; 
     bool gagne = false;
 
-    while(jeu == ENCOURS)
-
+    while((jeu == ENCOURS) && (courant->nbjetons>0))
     {
         printtab(tab);
         col = getnumcol(courant);
