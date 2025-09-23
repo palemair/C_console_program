@@ -1,27 +1,26 @@
-#include "affichage.h"
+#include "print.h"
 #include "joueur.h"
 
 int main (void) 
-
 {
-    static char tab[7][6];
+    static char tab[7][8];
     
-    viderTableau(tab,' ');
-    unsigned short col = 0;
+    initialize_tab(tab,' ');
+    unsigned short col, ligne;
 
-    struct joueur_s joueur1 = { 1,21,0,'X',NULL};
-    struct joueur_s joueur2 = { 2,21,1,'O',&joueur1};
+    struct joueur_s joueur1 = { 1, 21, 0, 0, 'X', NULL};
+    struct joueur_s joueur2 = { 2, 21, 0, 0, 'O', &joueur1};
     joueur1.suivant = &joueur2;
    	
-    struct joueur_s * courant = NULL;
-    courant = &joueur1;
+    struct joueur_s * courant = &joueur1;
     
     FINPARTIE jeu = ENCOURS; 
+    bool gagne = false;
 
-    while(1)
+    while(jeu == ENCOURS)
 
     {
-        afftab(tab);
+        printtab(tab);
         col = getnumcol(courant);
         
         if(col == 0) 
@@ -30,19 +29,29 @@ int main (void)
             printf("Jeu arrété !!\n\n");
             break;
         }
-        courant->position = col;
+        else
+        {
+            courant->x_position = col;
+        } 
         
-        if(!jouer(tab,courant))
+        ligne = jouer(tab,courant);
+
+        if(ligne == 0) 
         {
             fprintf(stderr,"Mauvaise saisie, colonne pleine !!\n");
             continue;
         }
-
-        jeu=checkjeu(tab, courant);
-        
-        if (jeu == VICTOIRE) 
+        else
         {
-            afftab(tab);
+            courant->y_position = ligne;
+        }
+
+        gagne = check_victory(tab, courant);
+        
+        if (gagne) 
+        {
+            jeu = VICTOIRE;
+            printtab(tab);
             printf("joueur %u vainqueur !! \n\n", courant->numjoueur);
             break;
         }

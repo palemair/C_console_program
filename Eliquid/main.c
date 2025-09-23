@@ -166,14 +166,14 @@ int main (int argc, char **argv)
 
   /* Affichage du resultat !! */
 
-  printf ("\n\t\033[1;37m%s\033[0m\n", texte[0]);
+  printf ("\n     \033[1;37m%s\033[0m\n", texte[0]);
 
-  printf ("\n\t\033[1;37m%s\033[0m\n\n", texte[3]);
+  printf ("\n     \033[1;37m%s\033[0m\n\n", texte[3]);
   printf ("\t%-22s: \033[1;37m%5.2f €/L\033[0m\n", texte[4],tarif.base);
   printf ("\t%-22s: \033[1;37m%5.2f €/L\033[0m\n", texte[5],tarif.nicotine);
   printf ("\t%-22s: \033[1;37m%5.2f €/L\033[0m\n\n", texte[6],tarif.arome);
 
-  printf ("\n\t\033[1;37m%s\033[0m\n\n", texte[7]);
+  printf ("\n     \033[1;37m%s\033[0m\n\n", texte[7]);
 
   printf ("\t%-22s: \033[1;37m%5u ml\033[0m\n", texte[8],reponse.eliquide);
   printf ("\t%-22s: \033[1;37m%5u ml\033[0m\n", texte[9],reponse.base);
@@ -184,7 +184,7 @@ int main (int argc, char **argv)
   printf ("\033[1;37m%3u\033[0m boosters de nicotine + ",reponse.nicotine/10);
   printf ("\033[1;37m%3.1f\033[0m flacons d'arome\n\n",reponse.arome/10);
 
-  printf ("\t\033[1;37m%s\033[0m\n\n", "Tarif global :");
+  printf ("     \033[1;37m%s\033[0m\n\n", "Tarif global :");
 
   printf ("\t%-15s \033[1;41m %.2f € \033[0m | ", "Prix total :", total);
   printf ("\t%-20s \033[1;41m %.2f €/ml \033[0m\n", " Prix de revient : ", total / (float) reponse.eliquide);

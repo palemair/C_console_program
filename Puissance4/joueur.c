@@ -1,16 +1,23 @@
 #include "joueur.h"
 
-unsigned short getnumcol(struct joueur_s * joueur)
+bool test_cell(unsigned int x, unsigned int y, char tab[7][8], struct joueur_s *j)
+{
+   return (tab[y][x] == j->symbole);
+}
+
+int getnumcol(struct joueur_s * joueur)
 {
     char erreur[]="Mauvaise saisie !!";
     char ligne[3];
-    char ch;
+    char ch = 'd';
     unsigned short value=0;
 
     while(1)
     {
         printf("joueur %u : ",joueur->numjoueur);
-        fgets(ligne,3,stdin);
+        fgets(ligne,2,stdin);
+        while (ch != '\n' && ch != EOF) ch = getchar();
+
         if(sscanf(ligne,"%c",&ch) == 1)
         {
             if(ch=='q' || ch=='Q') 
@@ -26,7 +33,8 @@ unsigned short getnumcol(struct joueur_s * joueur)
             
             if(ch>'0' && ch <'8')
             {
-                return ch - '0';
+                value = (ch - '0');
+                break;
             }
             else
             {
@@ -38,143 +46,87 @@ unsigned short getnumcol(struct joueur_s * joueur)
     return value;
 }
 
-bool jouer(char tab[7][6], struct joueur_s * joueur)
+unsigned int jouer(char tab[7][8], struct joueur_s * joueur)
 {
+    int i = 1;
     bool trouve = false;
-    unsigned short pos = joueur->position - 1;
 
-    for(int i=0; i<6; ++i)
+    for( i=1; i<7; ++i)
     {
-        if (tab[pos][i]==' ')
+        if (tab[i][joueur->x_position]==' ')
         {
-            tab[pos][i]=joueur->symbole;
+            tab[i][joueur->x_position]=joueur->symbole;
             trouve = true;
             break;
         }
     }
-    return trouve;
+    return (trouve == true) ? i : 0;
 }
 
-int diag(char tab[7][6],int ligne, char *test)
+bool check_victory(char tab[7][8], struct joueur_s *joueur)
 {
-    int col=0;
-    char *pt;
-    char mot[8];
-    pt=mot;
-
-    while(ligne<7 && col<6)
+    for (int u = 0; u<4;u++)
     {
-        *pt=tab[ligne][col];
-        ++pt,++ligne,++col;
-    }
-    *pt='\0';
-    if(strstr(mot,test) != NULL) return 1;
+        int x = joueur->x_position;
+        int y = joueur->y_position;
+        int count = 0;
 
-    return 0;
-}
-
-int xdiag(char tab[7][6],int col,char *test) 
-{
-    int ligne=0;
-    char *pt;
-    char mot[8];
-    pt = mot;
-    while(ligne<7 && col<6)
-    {
-        *pt=tab[ligne][col];
-        ++pt,++ligne,++col;
-    }
-    *pt='\0';
-    if(strstr(mot,test) != NULL) return 1;
-    return 0;
-}
-
-int rdiag(char tab[7][6],int ligne, char *test)
-{
-    int col=5;
-    char *pt;
-    char mot[8];
-    pt = mot;
-    while(ligne<7 && col>=0)
-    {
-        *pt=tab[ligne][col];
-        ++pt,++ligne,--col;
-    }
-    *pt='\0';
-    if(strstr(mot,test) != NULL) return 1;
-    return 0;
-}
-
-int rxdiag(char tab[7][6],int col, char *test)
-{
-    int ligne=0;
-    char *pt;
-    char mot[8];
-    pt = mot;
-    while(ligne<7 && col>=0)
-    {
-        *pt=tab[ligne][col];
-        ++pt,++ligne,--col;
-    }
-    *pt='\0';
-    if(strstr(mot,test) != NULL) return 1;
-    return 0;
-}
-
-FINPARTIE checkjeu(char tab[7][6], struct joueur_s *joueur)
-    
-{
-    char c = joueur->symbole;
-    char phrase[10];
-    char test[5];
-    int ligne, col, k;
-
-    for(k=0;k<4;++k)
-    {
-        test[k]=c;
-    }
-    test[k]='\0';
-
-    for(ligne=0;ligne<7;++ligne)
-    {
-        for(col=0;col<6;++col)
+        switch (u)
         {
-            phrase[col]=tab[ligne][col];
-        } 
-        phrase[col]='\0';
+            case 0 :
+            {
+                while(y>0 && (tab[y--][x] == joueur->symbole) && count++ < 4);
+                break;
+            }
+            case 1 :
+            {
+                int i = 0;
+                while(test_cell(x + i,y,tab,joueur) && count<4)
+                {
+                    if((x + i++)<8) count ++;
+                }
+                i = -1;
+                while(test_cell(x + i,y,tab,joueur) && count<4)
+                {
+                    if((x + i--)>0) count ++;
+                }
 
-        if(strstr(phrase,test) != NULL) return VICTOIRE;
+                break;
+            }
+            case 2 :
+            {
+                int i = 0;
+                while(test_cell(x + i,y + i,tab,joueur) && count<4)
+                {
+                    if((y + i <7) && ((x + i++)<8)) count ++;
+                }
 
+                i = -1;
+                while(test_cell(x + i,y + i,tab,joueur) && count<4)
+                {
+                    if(((y + i) > 0) && ((x + i--)>0)) count ++;
+                }
+
+                break;
+            }
+            case 3 :
+            {
+                int i = 0;
+                while(test_cell(x + i,y - i,tab,joueur) && count<4)
+                {
+                    if(((y - i) <7) && ((x + i++)<8)) count ++;
+                }
+                i = -1;
+                while(test_cell(x + i,y,tab,joueur) && count<4)
+                {
+                    if(((y - i) > 0) && ((x + i--)>0)) count ++;
+                }
+
+                break;
+            }
+        }
+
+        if(count == 4) return true;
     }
-
-    for(ligne=0;ligne<6;++ligne)
-    {
-        for(col=0;col<7;++col)
-        {
-            phrase[col]=tab[col][ligne];
-        } 
-        phrase[col]='\0';
-
-        if(strstr(phrase,test) != NULL) return VICTOIRE;
-    }
-
-    for(k=0;k<4;k++)
-    {
-        if(diag(tab,k,test)==1) return VICTOIRE;
-    }
-
-    diag(tab,k,test);
-
-    for(k=0;k<3;k++)
-    {
-        if(xdiag(tab,k,test) == 1) return VICTOIRE;
-        if(rdiag(tab,k,test) == 1) return VICTOIRE;
-    }
-
-    for(k=5;k>2;k--)
-    {
-        if(rxdiag(tab,k,test) == 1) return VICTOIRE;
-    }
-
-    return ENCOURS;
+    return false;
 }
