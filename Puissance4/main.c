@@ -1,13 +1,15 @@
-#include "print.h"
 #include "joueur.h"
+#include "print.h"
+#include <unistd.h>
 
+char tab[7][8];
 
 int main (void) 
 {
+    srand (time (NULL));
     typedef enum {VICTOIRE, PLUSDEJETON, QUITTER, ENCOURS} FINPARTIE;
-    static char tab[7][8];
     
-    initialize_tab(tab,' ');
+    initialize_tab(' ');
     unsigned short col, ligne;
 
     struct joueur_s joueur1 = { 1, 21, 0, 0, 'X', NULL};
@@ -18,11 +20,26 @@ int main (void)
     
     FINPARTIE jeu = ENCOURS; 
     bool gagne = false;
+    int tj1[8], tj2[8];
 
     while((jeu == ENCOURS) && (courant->nbjetons>0))
     {
-        printtab(tab);
-        col = getnumcol(courant);
+        printtab(courant);
+        if(courant->numjoueur == 2)
+        {
+            check_col(tj1, joueur1.symbole);
+            check_col(tj2, joueur2.symbole);
+            get_max_from_2_col(tj1, tj2);
+            int choice = choose_col(tj1, tj2);
+            sleep(1);
+            printf("Ordinateur joue : %d\n", choice);
+            
+            col = choice;
+        }
+        else
+        {
+            col = getnumcol(courant);
+        }
         
         if(col == 0) 
         {
@@ -35,7 +52,7 @@ int main (void)
             courant->x_position = col;
         } 
         
-        ligne = jouer(tab,courant);
+        ligne = jouer(courant);
 
         if(ligne == 0) 
         {
@@ -47,12 +64,12 @@ int main (void)
             courant->y_position = ligne;
         }
 
-        gagne = check_victory(tab, courant);
+        gagne = check_victory( courant);
         
         if (gagne) 
         {
             jeu = VICTOIRE;
-            printtab(tab);
+            printtab(courant);
             printf("joueur %u vainqueur !! \n\n", courant->numjoueur);
             break;
         }
